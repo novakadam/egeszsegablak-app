@@ -7,18 +7,25 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
-      - run: npm ci
-      - run: npm run build
+      - name: Install deps
+        run: npm ci
 
-      - run: sudo apt-get update && sudo apt-get install -y rsync
+      - name: Build
+        run: npm run build
+
+      - name: Install rsync
+        run: sudo apt-get update && sudo apt-get install -y rsync
 
       - name: Add SSH key
         uses: webfactory/ssh-agent@v0.9.0
@@ -30,9 +37,29 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -p ${{ secrets.HOSTINGER_PORT }} ${{ secrets.HOSTINGER_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy dist/ -> Hostinger
+      # 🔒 BIZTONSÁGI ELLENŐRZÉS – ne mehessen rossz helyre
+      - name: Safety check target path
         run: |
-          rsync -az --delete \
+          TARGET="domains/purple-shark-245382.hostingersite.com/public_html/app/"
+          case "$TARGET" in
+            */public_html/app/) echo "OK target: $TARGET" ;;
+            *) echo "❌ Unsafe deploy target: $TARGET"; exit 1 ;;
+          esac
+
+      # 👀 DRY RUN – SEMMIT nem módosít
+      - name: DRY RUN – preview changes
+        run: |
+          echo "====== DRY RUN (no changes will be made) ======"
+          rsync -avz --delete --dry-run \
+            -e "ssh -p ${{ secrets.HOSTINGER_PORT }} -o StrictHostKeyChecking=yes" \
+            dist/ \
+            ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }}:domains/purple-shark-245382.hostingersite.com/public_html/app/
+
+      # 🚀 ÉLES DEPLOY
+      - name: Deploy dist → Hostinger (/app)
+        run: |
+          echo "====== LIVE DEPLOY ======"
+          rsync -avz --delete \
             -e "ssh -p ${{ secrets.HOSTINGER_PORT }} -o StrictHostKeyChecking=yes" \
             dist/ \
             ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }}:domains/purple-shark-245382.hostingersite.com/public_html/app/
