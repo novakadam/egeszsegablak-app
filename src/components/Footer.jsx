@@ -26,10 +26,10 @@ const Footer = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3">
               <img
-                src="/assets/egeszsegablak-logo.svg"
-                alt="Egészségablak"
-                className="h-10 md:h-12"
-              />
+  src={`${import.meta.env.BASE_URL}assets/egeszsegablak-logo.svg`}
+  alt="Egészségablak"
+  className="h-10 md:h-12"
+/>
             </Link>
 
             {/* Linkek */}

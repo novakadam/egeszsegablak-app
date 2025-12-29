@@ -19,6 +19,9 @@ import {
 import { fetchCategories } from "@/lib/wpApi";
 import { sortCategoriesSimple } from "@/lib/categoryOrder";
 
+const asset = (p) => `${import.meta.env.BASE_URL}${String(p).replace(/^\//, "")}`;
+
+
 const iconMap = {
   "layout-grid": LayoutGrid,
   "book-open": BookOpen,
