@@ -23,6 +23,8 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          VITE_WP_BASE: ${{ secrets.VITE_WP_BASE }}
 
       - name: Install rsync
         run: sudo apt-get update && sudo apt-get install -y rsync
