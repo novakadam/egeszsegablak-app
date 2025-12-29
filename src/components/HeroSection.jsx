@@ -17,7 +17,9 @@ import {
 
 import { fetchCategories } from "@/lib/wpApi";
 
-const CARD_BG_PNG = "/assets/card-bg.png"; // public/assets/card-bg.png
+const asset = (p) => `${import.meta.env.BASE_URL}${String(p).replace(/^\//, "")}`;
+
+const CARD_BG_PNG = asset("assets/card-bg.png");
 
 // ACF icon (string) -> Lucide komponens
 // Ha WP-ben olyan string van, ami nincs itt, fallback lesz BookPlus.
