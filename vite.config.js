@@ -1,3 +1,4 @@
+// vite.config.js
 import path from "node:path";
 import react from "@vitejs/plugin-react";
 import { createLogger, defineConfig } from "vite";
@@ -205,11 +206,8 @@ const addTransformIndexHtml = {
       },
     ];
 
-    // (ha nálad tényleg kell prod-only banner)
-    if (
-      process.env.TEMPLATE_BANNER_SCRIPT_URL &&
-      process.env.TEMPLATE_REDIRECT_URL
-    ) {
+    // opcionális prod banner/redirect (ha használtad korábban)
+    if (process.env.TEMPLATE_BANNER_SCRIPT_URL && process.env.TEMPLATE_REDIRECT_URL) {
       tags.push({
         tag: "script",
         attrs: {
@@ -227,27 +225,22 @@ const addTransformIndexHtml = {
 // (opcionális) lenémítja a warnokat
 console.warn = () => {};
 
-// Logger tweak
-const logger = createLogger();
-const loggerError = logger.error;
-logger.error = (msg, options) => {
-  if (options?.error?.toString().includes("CssSyntaxError: [postcss]")) return;
-  loggerError(msg, options);
-};
-
-/**
- * ✅ A LÉNYEG:
- * Vite-ben a DEV/PROD különbséget biztosan így kapod meg:
- * - command === "serve" -> npm run dev
- * - command === "build" -> npm run build
- */
 export default defineConfig(({ command }) => {
+  // ✅ Vite-ben ez a biztos DEV detection:
   const isDev = command === "serve";
+
+  const logger = createLogger();
+  const loggerError = logger.error;
+
+  logger.error = (msg, options) => {
+    if (options?.error?.toString().includes("CssSyntaxError: [postcss]")) return;
+    loggerError(msg, options);
+  };
 
   return {
     customLogger: logger,
 
-    // ✅ dev: /  |  prod build: /app/
+    // ✅ DEV: "/"  |  PROD (Hostinger /app/): "/app/"
     base: isDev ? "/" : PROD_BASE,
 
     plugins: [
