@@ -3,8 +3,9 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 // Use only the strip image provided by the user
-const STRIP_IMAGE = "/assets/szakertok-caroussel-line.jpg";
+const asset = (p) => `${import.meta.env.BASE_URL}${String(p).replace(/^\//, "")}`;
 
+const STRIP_IMAGE = asset("assets/szakertok-caroussel-line.jpg");
 // Configuration for the 12 rows
 // Significantly reduced speeds (duration ~200s)
 // Alternating directions
